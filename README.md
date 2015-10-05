@@ -1,6 +1,7 @@
 # Template for Bachelor / Master's Thesis
 
 __Distributed under terms of the BSD license__
+__© 2015 [Tomoaki Chiba](http://www.haconeco.com) All Rights Reserved__
 
 ## 利用法
 ### プリアンブルの変更
