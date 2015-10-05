@@ -31,14 +31,16 @@ __Distributed under terms of the BSD license__
     - `texmf.cnf`を適切に設定している場合は`.xbb`ファイルは自動的に作成できる
     - `texmf.cnf`の場所は`~ $ kpsewhich -var-value TEXMFLOCAL`で調べられる。
     - `texmf.cnf`には以下を記述する
-      ```
-      shell_escape_commands = \
-      bibtex,bibtex8,bibtexu,pbibtex,upbibtex,biber,\
-      kpsewhich,\
-      makeindex,mendex,texindy,\
-      mpost,pmpost,upmpost,\
-      repstopdf,epspdf,extractbb,\
-      ```
+
+```
+shell_escape_commands = \
+bibtex,bibtex8,bibtexu,pbibtex,upbibtex,biber,\
+kpsewhich,\
+makeindex,mendex,texindy,\
+mpost,pmpost,upmpost,\
+repstopdf,epspdf,extractbb,\
+```
+
 1. 本文に`\includegraphics{filename.png}`で画像を挿入する
 
 ### 本文の作成
