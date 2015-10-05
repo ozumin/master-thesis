@@ -81,3 +81,5 @@ repstopdf,epspdf,extractbb,\
 \DeclareMathOperator*{\argmax}{arg\,max}
 ```
 
+### latexmkを利用する場合
+* 以下を参照し`~/.latexmkrc`を作成する
