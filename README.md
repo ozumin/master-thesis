@@ -84,4 +84,6 @@ repstopdf,epspdf,extractbb,\
 ### latexmkを利用する場合
 * 以下を参照し`~/.latexmkrc`を作成する
 
-[.latexmkrc](https://raw.githubusercontent.com/haconeco/dotfiles/master/.latexmkrc)
+[.latexmkrc(LuaLaTex)](https://github.com/vwrs/dotfiles/blob/master/latexmkrc)
+
+[.latexmkrc(UpLaTex)](https://github.com/ozumin/dotfiles/blob/master/.latexmkrc)
