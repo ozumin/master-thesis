@@ -1,3 +1,8 @@
+# LuaLaTex対応
+
+[このように](https://github.com/ozumin/master-thesis/commit/d37727e667ddbaa5ec964750efec8b224ecb85e1#diff-a45f2757f94fd2337ebf7ddd018c11a2)
+変更を加えればLuaLaTexを使えるようになる（このリポジトリではLuaLaTex対応）
+
 # Template for Bachelor / Master's Thesis
 
 __Distributed under terms of the BSD license__
