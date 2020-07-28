@@ -1,0 +1,55 @@
+\chapter{手法}
+\section{仮説}
+We made several assumptions before making mathematical model for calcium imaging data.
+\\
+\noindent \textbf{Assumption 1}\\
+There are $K$ neuronal ensembles, whose members become active simultaneously.
+A neuron can be in several ensembles.
+Members in each ensemble do not change during observation.\\
+\textbf{Assumption 2}\\
+When several ensembles are activated, their members do not overlap.
+\\
+With these assumptions, we can construct a mathematical model.
+Let $\boldsymbol{c}_{k:}$, $k=1,\dots,K$ be a time series of the activity of neuronal ensemble $k$.
+For neuron $i$, $\boldsymbol c$ is weighted to construct the activity of neuron $i$.
+Let $\boldsymbol{y}^i_{k:}$, ($k = 1, \dots, K$) be a weighted time series of $\boldsymbol{c}_{k:}$ written as follows:
+\begin{equation}
+  \boldsymbol{y}^i_{k:} = d_{ik} \boldsymbol{c}_{k:}.
+  \label{eq:y}
+\end{equation}
+
+Let $\boldsymbol{x}_{i:}$ be a time series of $i$th neuron of observed data.
+The observation $\boldsymbol{x}_{i:}$ is modeled as follows:
+\begin{equation}
+  \boldsymbol{x}_{i:} = \sum_{k=1}^K \boldsymbol{y}^i_{k:} + \boldsymbol{\eta}_{i:}.
+  \label{eq:x}
+\end{equation}
+$\boldsymbol{\eta}_{i:}$ is a time series of noise which is normally distributed.
+The noise of calcium imaging is mostly photon shot noise, which obeys a Poisson distribution.
+For high photon counts, shot noise can be approximated by a Gaussian distribution~\cite{Sjulson2007}.
+
+Let $\mathbb{R}_+$ be a set of non-negative real numbers.
+This model can be expressed in a matrix form as follows:
+\begin{eqnarray}
+  \boldsymbol{Y} &=& \boldsymbol{DC}, \\
+  \boldsymbol{X} &=& \boldsymbol{Y} + \boldsymbol{H},
+  \label{model_matrix}
+\end{eqnarray}
+where $\boldsymbol{X} \in \mathbb{R}_+^{N \times T}$, $\boldsymbol{D} \in \mathbb{R}_+^{N \times K}$, $\boldsymbol{C} \in \mathbb{R}_+^{K \times T}$, and $\boldsymbol{H} \in \mathbb{R}^{N \times T}$.
+The row of $\boldsymbol X$ is $\boldsymbol{x}_{i:}$, the $(i,k)$-element of $\boldsymbol D$ is $d_{ik}$, the row of $\boldsymbol C$ is $\boldsymbol{c}_{i:}$, and the row of $\boldsymbol H$ is $\boldsymbol{\eta}_{i:}$.
+
+Then, the problem is to estimate $\boldsymbol D$ and $\boldsymbol C$.
+
+We can use non-negative matrix factorzation (NMF) to estimate $\boldsymbol D$ and $\boldsymbol C$.
+NMF decomposes a non-negative matrix $\boldsymbol{X}$ into a product of non-negative matrices $\boldsymbol{D}$ and $\boldsymbol{C}$.
+The variances of noise in each neuron differs because $\boldsymbol A$ is multiplied to the noise matrix $\boldsymbol H$.
+NMF which use euclidean distance in objective function cannot consider different noise variances into account.
+
+We define a contribution rate of $\boldsymbol{y}^i_{k:}$ for neuron $i$ by its l1-norm:
+\begin{equation}
+  || \boldsymbol{y}^i_{k:}||_1.
+  \label{eq:contribution}
+\end{equation}
+Our goal is to obtain neural ensembels; however, the result of NMF is not clear which neural ensembles neuron $i$ belongs to.
+If a neuron belongs to a neural ensemble $k$, its contribution $||\boldsymbol{y}^i_{k:}||_1$ will be large.
+Note that we should devide the contribution rate by $\sum_{k=1}^K ||\boldsymbol{y}^i_{k:}||_1$ to compare contribution between neurons.

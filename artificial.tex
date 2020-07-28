@@ -1,0 +1,71 @@
+\chapter{人工データ実験}
+\section{Simulation}
+\subsection{Spiking model}
+To evaluate how accurately NMF can obtain neural ensembles, we conducted an experiment on artificial data.
+
+We use spiking model proposed by Izhikevich~\cite{Izhikevich2003}.
+This model is based on Hodgkin-Huxley model with computational efficiency.
+There are 4 parameters in thid model which characterize neuron types.
+We used regular spiking neurons for excitatory neurons and fast spiking neurons for inhibitory neurons.
+The parameters we used is shown in \Tabref{tab:parameter1} where $r_e$ and $r_i$ are random variables following a uniform distribution from 0 to 1.
+
+\begin{table}[htb]
+  \center
+  \begin{tabular}{|c|cccc|} \hline
+    neuron type & a & b & c & d \\ \hline
+    excitatory neuron & 0.02 & 0.2 & $-65 + 15 r_e^2$ & $8 - 6r_e^2$ \\
+    inhibitory neuron & $0.02 + 0.08r_i$ & $0.25 - 0.05 r_i$ & -65 & 2 \\ \hline
+  \end{tabular}
+  \caption{Parameters used in Izhikevich model}
+  \label{tab:parameter1}
+\end{table}
+
+We need to specify synaptic transmissions between neurons.
+It can be written by adjacency matrix.
+The $(i,j)$-element of the adjacency matrix equals to how much voltage will be transmitted from neuron $j$ to neuron $i$ when neuron $j$ is fired.
+The columns of excitatory neurons and inhibitory neurons are random variables following a uniform distribution from 0 to 0.5 and a uniform distribution from -2 to 0, respectively.
+
+We simulated for a network of 800 excitatory neurons and 200 inhibitory neurons.
+Every neuron has random thalamic input from outside the network in every 1ms.
+Thalamic input for excitatory neurons and inhibitory neurons follow a gaussian distribution with mean 0 and variance 5 and a gaussian distribution with mean 0 and variance 2, respectively.
+We need to evaluate NMF by the ability of detecting neural ensembles which is activated in specific time.
+The number of neurons in each ensemble follows a uniform distribution from 50 to 200.
+We changed neural ensembles every 10s.
+In that time period, neurons in ensemble have stronger thalamic input raised by 1 and 0.4 for excitatory and inhibitory neurons, respectively.
+Total time of simulation is 470s.
+The first 10s is not used for the simulation stability.
+
+\subsection{Calcium imaging model}
+We calculate calcium concentration in a neuron from simulated spikes by following model proposed by Vogelstein~\cite{Vogelstein2009}:
+\begin{equation}
+  [Ca^{2+}]_{i,t} - [Ca^{2+}]_{i,t-1} = - \frac{\Delta}{\tau}([Ca^{2+}]_{t-1} - [Ca^{2+}]_b) + An_{i,t} + \sigma_c \sqrt{\Delta} \epsilon_{i,t},
+  \label{eq:calcium}
+\end{equation}
+where $[Ca^{2+}]_{i,t}$ is calcium concentration of neuron $i$ at time $t$, $[Ca^{2+}]_b$ is calcium concentration baseline, $\Delta$ is time step size, $\tau$ is decay time constant, $A$ is rise in $[Ca^{2+}]$ after spike, $n_{i,t}$ is spike of 0 or 1, $\sigma_c$ is variance of noise, $\epsilon_{i,t}$ is noise which follows normal gaussian distribution.
+We do not take saturation into account because our data seems to be not having saturation.
+
+Then, we convert the calcium concentration $[Ca^{2+}]_{i,t}$ to imaging intensity $F_{i,t}$ by equation from Vogelstein~\cite{Vogelstein2009}:
+\begin{equation}
+  F_{i,t} = \alpha[Ca^{2+}]_t + \beta + \sigma_F \epsilon_{i,t},
+  \label{eq:intensity}
+\end{equation}
+where $\alpha$ is the scale of imaging intensity, $\beta$ is offset, $sigma_F$ is variance of noise and $\epsilon_{i,t}$ is noise which follows normal gaussian distribution.
+
+Finally, we take sum of intensity every 125ms since our data is sampled at 8Hz:
+\begin{equation}
+  x_{i,t'} = \sum_{t=1}^{125} F_{i,t}.
+  \label{eq:observation}
+\end{equation}
+
+Parameters we used is shown in \Tabref{tab:parameter2}.
+\begin{table}[htb]
+  \center
+  \begin{tabular}{|cccccccc|} \hline
+    $[Ca^{2+}]_b$ & $\Delta$ & $\tau$ & $A$ & $\sigma_c$ & $\alpha$ & $\beta$ & $\sigma_F$ \\ \hline
+    0.1 & 0.001 & 0.5 & 5.0 & 1.0 & 1.0 & 0 & 1.0 \\ \hline
+  \end{tabular}
+  \caption{Parameters used in Vogelstein model}
+  \label{tab:parameter2}
+\end{table}
+
+\section{Result}
