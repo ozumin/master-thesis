@@ -1,0 +1,95 @@
+\documentclass[
+  11pt, % 本文のサイズ
+  twocolumn, % 二段組
+  headings=small, % sectionなどを小さく
+]{scrartcl}
+\usepackage[
+  left=1.5cm,
+  right=1.5cm,
+  top=1.5cm,
+  bottom=1.5cm
+]{geometry}
+\usepackage[hiragino-pron]{luatexja-preset} % 日本語化
+\usepackage[main=japanese,english]{babel} % キャプションなどを日本語化
+\usepackage{setspace}\setstretch{0.9} % 字間を詰める
+\usepackage{multirow} % 表を縦に結合
+%%% テンプレートの設定の始まり
+\pagestyle{empty} % 頁番号を削除
+\setlength{\arrayrulewidth}{.8pt} % 罫線の太さ
+\setlength{\tabcolsep}{3pt}
+\setkomafont{title}{\normalfont\mcfamily} % タイトルを太字にしない
+\title{ %%% 
+  \vspace*{-30pt}
+  \begin{minipage}[t]{1.0\linewidth}
+    \begin{center}
+      \LARGE
+      修\ \ 士\ \ 論\ \ 文\ \ 概\ \ 要\ \ 書\\[3pt]
+      \large
+      Summary of Master's Thesis
+    \end{center}
+    \begin{flushright}
+      \normalsize      
+      Date of submission: \提出日
+    \end{flushright}
+  \end{minipage}
+  \vspace*{-20pt} % タイトル下の空間
+}
+\author{
+  \begin{minipage}[t]{1.0\linewidth}
+    \begin{center} % 表の大きさは調整した方が良いかも
+      \normalsize
+      % \fontsize{10pt}{12pt}\selectfont % もう少し小さくする場合
+      \begin{tabular}{|c|p{3cm}|c|p{3cm}|c|p{3cm}|}
+        \hline
+        \shortstack{\\専攻名 (専門分野)\\Department}&電気・情報生命&
+          \shortstack{\\氏名\\Name}&\氏名& 
+          \multirow[c]{2}{4em}{\shortstack{\\指導教員\\Advisor}}&
+          \multirow[c]{2}{5em}{村田 昇}
+        \\ 
+        \cline{1-4}
+        \shortstack{\\研究指導名\\Research guidance}&情報学習システム& 
+          \shortstack{\\学籍番号\\Student ID\\number}&\学籍番号&&
+        \\ 
+        \hline
+        \shortstack{\\研究題目\\Title}&\multicolumn{5}{l|}{\研究題目}
+        \\ 
+        \hline
+      \end{tabular}
+    \end{center}
+  \end{minipage}
+}
+\date{\vspace*{-30pt}}
+%%% テンプレートの設定の始まり
+
+%%% 以下必要に応じて変更
+%% 必要なpackageの読み込みの例
+\usepackage{graphicx}
+\graphicspath{{./figures/}}
+\usepackage{amsmath,amssymb}
+\usepackage[fleqn,tbtags]{mathtools} % amsmathの拡張
+\mathtoolsset{showonlyrefs,showmanualtags} 
+\usepackage{bxjalipsum} % ダミーの文書
+%% 例の終わり
+%% 
+\def\氏名{夏目 漱石}
+\def\学籍番号{5320E123-4}
+\def\研究題目{「我輩」の秘密に関する研究}
+\def\提出日{02/29/2020}
+\begin{document}
+\maketitle
+\thispagestyle{empty} % 表紙から頁番号を削除
+
+%%% 以下本文の例
+%%% (sectionだと大きいのでとりあえずsubsectionにしてみた)
+\subsection*{研究背景} 
+\jalipsum{iroha}
+\subsection*{問題設定}
+\jalipsum[1-6]{wagahai}
+\subsection*{提案手法}
+\jalipsum[1-10]{kusamakura}
+\subsection*{応用例}
+\jalipsum{hatsukoi}
+\subsection*{まとめ}
+\jalipsum{jugemu}
+
+\end{document}
