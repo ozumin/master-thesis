@@ -1,0 +1,60 @@
+\NeedsTeXFormat{LaTeX2e}[1995/12/01]
+\ProvidesPackage{abstract}[2020/02/12, 研究概要書 style version 1.0]
+\RequirePackage[
+  left=1.5cm,
+  right=1.5cm,
+  top=1.5cm,
+  bottom=1.5cm
+]{geometry}
+\RequirePackage[hiragino-pron]{luatexja-preset} % 日本語化
+\RequirePackage[main=japanese,english]{babel} % キャプションなどを日本語化
+\RequirePackage{setspace}\setstretch{0.9} % 字間を詰める
+\RequirePackage{multirow} % 表を縦に結合
+%%% テンプレートの設定の始まり
+\pagestyle{empty} % 頁番号を削除
+\setlength{\arrayrulewidth}{.8pt} % 罫線の太さ
+\setlength{\tabcolsep}{3pt}
+\setkomafont{title}{\normalfont\mcfamily} % タイトルを太字にしない
+\title{%%% 
+  \vspace*{-30pt}
+  \begin{minipage}[t]{1.0\linewidth}
+    \begin{center}
+      \LARGE
+      修\ \ 士\ \ 論\ \ 文\ \ 概\ \ 要\ \ 書\\[3pt]
+      \large
+      Summary of Master's Thesis
+    \end{center}
+    \begin{flushright}
+      \normalsize      
+      Date of submission: \提出日
+    \end{flushright}
+  \end{minipage}
+  \vspace*{-20pt} % タイトル下の空間
+}
+\author{%
+  \begin{minipage}[t]{1.0\linewidth}
+    \begin{center} % 表の大きさは調整した方が良いかも
+      \normalsize
+      % \fontsize{10pt}{12pt}\selectfont % もう少し小さくする場合
+      \begin{tabular}{|c|p{3cm}|c|p{3cm}|c|p{3cm}|}
+        \hline
+        \shortstack{\\専攻名 (専門分野)\\Department}&電気・情報生命&
+          \shortstack{\\氏名\\Name}&\氏名& 
+          \multirow[c]{2}{4em}{\shortstack{\\指導教員\\Advisor}}&
+          \multirow[c]{2}{5em}{村田 昇}
+        \\ 
+        \cline{1-4}
+        \shortstack{\\研究指導名\\Research guidance}&情報学習システム& 
+          \shortstack{\\学籍番号\\Student ID\\number}&\学籍番号&&
+        \\ 
+        \hline
+        \shortstack{\\研究題目\\Title}&\multicolumn{5}{l|}{\研究題目}
+        \\ 
+        \hline
+      \end{tabular}
+    \end{center}
+  \end{minipage}
+}
+\date{\vspace*{-30pt}}
+%%% テンプレートの設定の終わり
+\endinput
