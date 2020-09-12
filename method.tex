@@ -53,3 +53,23 @@ We define a contribution rate of $\boldsymbol{y}^i_{k:}$ for neuron $i$ by its l
 Our goal is to obtain neural ensembels; however, the result of NMF is not clear which neural ensembles neuron $i$ belongs to.
 If a neuron belongs to a neural ensemble $k$, its contribution $||\boldsymbol{y}^i_{k:}||_1$ will be large.
 Note that we should devide the contribution rate by $\sum_{k=1}^K ||\boldsymbol{y}^i_{k:}||_1$ to compare contribution between neurons.
+
+\section{解析のアプローチ}
+\subsection{分解能の決定}
+ニューロンの活動データの扱いには時間分解能と空間分解能の2つの側面から検討する必要がある．
+時間分解能については，蛍光強度データをそのまま用いる場合，移動平均をとる場合，時間窓に区切るなどが考えられる．
+空間分解能については，ニューロン1個を見る場合，2個を見る場合，グループとして見る場合が考えられる．
+手法によってどのレベルでデータを扱うかが異なる．
+
+\subsection{Graphical lasso}
+
+\subsection{ロジスティック回帰}
+
+\subsection{NMF}
+Nonnegative matrix factorization（NMF）は行列分解の手法の一つである．
+NMFは以下の目的関数を最小化する：
+\begin{equation}
+	\argmin_{D \geq 0, C \geq 0} ||X - DC||_F^2.
+  \label{eq:NMF}
+\end{equation}
+NMFで検討したアプローチは次章で説明する．

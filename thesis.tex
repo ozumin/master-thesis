@@ -55,12 +55,18 @@
 \newcommand{\Equref}[1]{式~\ref{#1}}
 \newcommand{\Figref}[1]{図~\ref{#1}}
 \newcommand{\Tabref}[1]{表~\ref{#1}}
+\newcommand{\minimize}{\mathop{\rm minimize}\limits}
+\newcommand{\maximize}{\mathop{\rm maximize}\limits}
+\newcommand{\mb}{\mathbf}
+\newcommand{\mr}{\mathrm}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
 %%%
 
 %%% タイトル
 \subject{2020年度修士論文}
 \title{カルシウムイメージングデータの研究}
-% \subtitle{私が彼について知っている2,3の事柄} 
+\subtitle{タイトルは適当} 
 \author{5319E056-6　永山 瑞生}
 \date{\today}
 \publishers{
@@ -81,9 +87,13 @@
 \mainmatter
 %%% 以下本文の例
 \include{intro}
-\cite{Kato2017115,Kato2016}
+\include{related}
 \include{method}
+\include{nmf}
 \include{artificial}
+\include{real}
+\include{discussion}
+\include{thanks}
 
 \backmatter
 \begin{otherlanguage}{english}
