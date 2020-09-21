@@ -1,75 +1,69 @@
 \chapter{手法}
-\section{仮説}
-We made several assumptions before making mathematical model for calcium imaging data.
-\\
-\noindent \textbf{Assumption 1}\\
-There are $K$ neuronal ensembles, whose members become active simultaneously.
-A neuron can be in several ensembles.
-Members in each ensemble do not change during observation.\\
-\textbf{Assumption 2}\\
-When several ensembles are activated, their members do not overlap.
-\\
-With these assumptions, we can construct a mathematical model.
-Let $\boldsymbol{c}_{k:}$, $k=1,\dots,K$ be a time series of the activity of neuronal ensemble $k$.
-For neuron $i$, $\boldsymbol c$ is weighted to construct the activity of neuron $i$.
-Let $\boldsymbol{y}^i_{k:}$, ($k = 1, \dots, K$) be a weighted time series of $\boldsymbol{c}_{k:}$ written as follows:
-\begin{equation}
-  \boldsymbol{y}^i_{k:} = d_{ik} \boldsymbol{c}_{k:}.
-  \label{eq:y}
-\end{equation}
-
-Let $\boldsymbol{x}_{i:}$ be a time series of $i$th neuron of observed data.
-The observation $\boldsymbol{x}_{i:}$ is modeled as follows:
-\begin{equation}
-  \boldsymbol{x}_{i:} = \sum_{k=1}^K \boldsymbol{y}^i_{k:} + \boldsymbol{\eta}_{i:}.
-  \label{eq:x}
-\end{equation}
-$\boldsymbol{\eta}_{i:}$ is a time series of noise which is normally distributed.
-The noise of calcium imaging is mostly photon shot noise, which obeys a Poisson distribution.
-For high photon counts, shot noise can be approximated by a Gaussian distribution~\cite{Sjulson2007}.
-
-Let $\mathbb{R}_+$ be a set of non-negative real numbers.
-This model can be expressed in a matrix form as follows:
-\begin{eqnarray}
-  \boldsymbol{Y} &=& \boldsymbol{DC}, \\
-  \boldsymbol{X} &=& \boldsymbol{Y} + \boldsymbol{H},
-  \label{model_matrix}
-\end{eqnarray}
-where $\boldsymbol{X} \in \mathbb{R}_+^{N \times T}$, $\boldsymbol{D} \in \mathbb{R}_+^{N \times K}$, $\boldsymbol{C} \in \mathbb{R}_+^{K \times T}$, and $\boldsymbol{H} \in \mathbb{R}^{N \times T}$.
-The row of $\boldsymbol X$ is $\boldsymbol{x}_{i:}$, the $(i,k)$-element of $\boldsymbol D$ is $d_{ik}$, the row of $\boldsymbol C$ is $\boldsymbol{c}_{i:}$, and the row of $\boldsymbol H$ is $\boldsymbol{\eta}_{i:}$.
-
-Then, the problem is to estimate $\boldsymbol D$ and $\boldsymbol C$.
-
-We can use non-negative matrix factorzation (NMF) to estimate $\boldsymbol D$ and $\boldsymbol C$.
-NMF decomposes a non-negative matrix $\boldsymbol{X}$ into a product of non-negative matrices $\boldsymbol{D}$ and $\boldsymbol{C}$.
-The variances of noise in each neuron differs because $\boldsymbol A$ is multiplied to the noise matrix $\boldsymbol H$.
-NMF which use euclidean distance in objective function cannot consider different noise variances into account.
-
-We define a contribution rate of $\boldsymbol{y}^i_{k:}$ for neuron $i$ by its l1-norm:
-\begin{equation}
-  || \boldsymbol{y}^i_{k:}||_1.
-  \label{eq:contribution}
-\end{equation}
-Our goal is to obtain neural ensembels; however, the result of NMF is not clear which neural ensembles neuron $i$ belongs to.
-If a neuron belongs to a neural ensemble $k$, its contribution $||\boldsymbol{y}^i_{k:}||_1$ will be large.
-Note that we should devide the contribution rate by $\sum_{k=1}^K ||\boldsymbol{y}^i_{k:}||_1$ to compare contribution between neurons.
-
+本章では検討した解析方法について述べる．
 \section{解析のアプローチ}
 \subsection{分解能の決定}
 ニューロンの活動データの扱いには時間分解能と空間分解能の2つの側面から検討する必要がある．
-時間分解能については，蛍光強度データをそのまま用いる場合，移動平均をとる場合，時間窓に区切るなどが考えられる．
-空間分解能については，ニューロン1個を見る場合，2個を見る場合，グループとして見る場合が考えられる．
+時間分解能については，蛍光強度データをそのまま用いる，移動平均をとる，時間窓に区切るなどが考えられる．
+空間分解能については，ニューロン1個を見る場合，2個を見る場合，複数を見る場合が考えられる．
 手法によってどのレベルでデータを扱うかが異なる．
+\Figref{tab:methods}にカルシウムイメージングデータを解析する際に使えそうな手法を載せる．
 
-\subsection{Graphical lasso}
+\begin{table}[htb]
+  \center
+  \begin{tabular}{|c|cc|} \hline
+    & 生データ & 時間窓で区切る \\ \hline
+    ペアで見る & 時系列クラスタリング & glasso，類似度+クラスタリング\\
+	  複数で見る & 行列分解 & ロジスティック回帰，時系列クラスタリング \\ \hline
+  \end{tabular}
+  \caption{カルシウムイメージングデータ解析に使えそうな手法}
+  \label{tab:methods}
+\end{table}
 
-\subsection{ロジスティック回帰}
+本論文では，データに対して仮説をおいて数理モデルを立てた上で，行列分解を用いることにする．
 
-\subsection{NMF}
-Nonnegative matrix factorization（NMF）は行列分解の手法の一つである．
-NMFは以下の目的関数を最小化する：
+\section{モデル}
+カルシウムイメージングデータを解析するに当たって，いくつかの仮説をおいた．
+\\
+\noindent \textbf{仮説 1}\\
+グループが$K$個存在し，同じグループのニューロンは同時に活動する．
+ニューロンは複数のグループに所属することができる．
+観測時間内ではグループに属するニューロンは変化しない．\\
+\textbf{仮説 2}\\
+複数のグループが同時に活動する時，属するニューロンは被らない（ニューロンが属するグループは同時には活動しない）．
+\\
+
+これらの仮説をもとに，数理モデルを構築する．
+$c_{k:}$, ($k=1,\dots,K$)をグループ$k$の活動の時系列とする．
+$c_k$が重み付けされた時系列を$y^i_{k:}$, ($k = 1, \dots, K$)を以下のように定義する：
 \begin{equation}
-	\argmin_{D \geq 0, C \geq 0} ||X - DC||_F^2.
-  \label{eq:NMF}
+  y^i_{k:} = d_{ik} c_{k:}.
+  \label{eq:y}
 \end{equation}
-NMFで検討したアプローチは次章で説明する．
+
+ニューロン$i$の観測時系列を$x_{i:}$とおき以下のようにモデル化する：
+\begin{equation}
+  x_{i:} = \sum_{k=1}^K y^i_{k:} + \eta_{i:}.
+  \label{eq:x}
+\end{equation}
+$\eta_{i:}$はガウスノイズである．
+カルシウムイメージングのノイズはポアソン分布に従う光子ノイズであるが，光子数が多い場合はガウス分布で近似できる~\cite{Sjulson2007}．
+
+$\mathbb{R}_+$を非負の実数の集合とする．
+\Eqref{eq:x}は行列形式で以下のように表現できる：
+\begin{eqnarray}
+  Y &=& DC, \\
+  X &=& Y + H.
+  \label{model_matrix}
+\end{eqnarray}
+ただし，$X \in \mathbb{R}_+^{N \times T}$, $D \in \mathbb{R}_+^{N \times K}$, $C \in \mathbb{R}_+^{K \times T}$, and $H \in \mathbb{R}^{N \times T}$である．
+また，$X$の行は$x_{i:}$，$D$の要素$(i,k)$は$d_{ik}$，$C$の行は$c_{i:}$，$H$の行は$\eta_{i:}$である．
+
+解くべき問題は$D$と$C$を推定することである．
+
+ニューロンがどのグループに所属しているかを評価する方法として，寄与率を導入する．
+ニューロン$i$に対するループ$k$の寄与率を以下のように定義する：
+\begin{equation}
+	\frac{|| y^i_{k:}||_1}{\sum_{l=1}^K || y^i_{l:} ||_1}.
+  \label{eq:pov}
+\end{equation}
+寄与率が高いグループにニューロン$i$が所属すると考えることにする．

@@ -22,78 +22,84 @@ Synaptic connetivityはニューロンがシナプスを形成してつながっ
 これらのデータを実現するように初期次数と張り替え確率を調整した．
 また，抑制性ニューロン同士のコネクティビティは分からないため，興奮性と同じにしている．
 \subsection{スパイクシミュレーション}
-We use spiking model proposed by Izhikevichモデル~\cite{Izhikevich2003}.
-This model is based on Hodgkin-Huxley model with computational efficiency.
-There are 4 parameters in thid model which characterize neuron types.
-We used regular spiking neurons for excitatory neurons and fast spiking neurons for inhibitory neurons.
-The parameters we used is shown in \Tabref{tab:parameter1} where $r_e$ and $r_i$ are random variables following a uniform distribution from 0 to 1.
+スパイクのシミュレーションにIzhikevichモデル~\cite{Izhikevich2003}を用いる．
+このモデルはHodgikin-Huxleyモデルをもとにしており，計算コストが低い．
+このモデルにはニューロンごとに4つのパラメータを設定する必要があり，そのパラメータでニューロンを特徴づける．
+本論文では興奮性ニューロンにはregular spiking neurons，抑制性ニューロンにはfast spiking neuronsを用いる．
+それらのパラメータを~\Tabref{tab:parameter1}に示す．
+ただし，$r_e$と$r_i$は0から1の一様分布に従う確率変数である．
 
 \begin{table}[htb]
   \center
   \begin{tabular}{|c|cccc|} \hline
-    neuron type & a & b & c & d \\ \hline
-    excitatory neuron & 0.02 & 0.2 & $-65 + 15 r_e^2$ & $8 - 6r_e^2$ \\
-    inhibitory neuron & $0.02 + 0.08r_i$ & $0.25 - 0.05 r_i$ & -65 & 2 \\ \hline
+    ニューロンの種類 & a & b & c & d \\ \hline
+    興奮性ニューロン & 0.02 & 0.2 & $-65 + 15 r_e^2$ & $8 - 6r_e^2$ \\
+    抑制性ニューロン & $0.02 + 0.08r_i$ & $0.25 - 0.05 r_i$ & -65 & 2 \\ \hline
   \end{tabular}
-  \caption{Parameters used in Izhikevich model}
+  \caption{Izhikevichモデルのパラメータ}
   \label{tab:parameter1}
 \end{table}
 
-We need to specify synaptic transmissions between neurons.
-It can be written by adjacency matrix.
-The $(i,j)$-element of the adjacency matrix equals to how much voltage will be transmitted from neuron $j$ to neuron $i$ when neuron $j$ is fired.
-The columns of excitatory neurons and inhibitory neurons are random variables following a uniform distribution from 0 to 0.5 and a uniform distribution from -2 to 0, respectively.
+ニューロン間でどれだけシナプス伝達が行われるかも決めなければならない．
+これは隣接行列で表すことができる．
+隣接行列の$(i,j)$要素は，ニューロン$j$が発火した際にどれくらいの電位がニューロン$j$からニューロン$i$に伝わるかを表す．
+興奮性ニューロンからの電位は0から0.5の一様分布からサンプルし，抑制性ニューロンからの電位は-2から0の一様分布からサンプルする．
 
-We simulated for a network of 800 excitatory neurons and 200 inhibitory neurons.
-Every neuron has random thalamic input from outside the network in every 1ms.
-Thalamic input for excitatory neurons and inhibitory neurons follow a gaussian distribution with mean 0 and variance 5 and a gaussian distribution with mean 0 and variance 2, respectively.
-We need to evaluate NMF by the ability of detecting neural ensembles which is activated in specific time.
-The number of neurons in each ensemble follows a uniform distribution from 50 to 200.
-We changed neural ensembles every 10s.
-In that time period, neurons in ensemble have stronger thalamic input raised by 1 and 0.4 for excitatory and inhibitory neurons, respectively.
-Total time of simulation is 470s.
-The first 10s is not used for the simulation stability.
+ニューロンには観測範囲外からの入力がある（以降，外部入力とする）．
+そのため，シミュレーション中も外部からの電位を乱数としてニューロンの電位に足す．
+興奮性ニューロンは$\mathcal{N}(0,5)$に従う乱数を足し，抑制性ニューロンは$\mathcal{N}(0,2)$に従う乱数を足す．
+本論文では同時に活動するニューロンを推定するのが目的の1つである．
+同時に活動するニューロンは，この乱数の平均値を上げることで表現する．
+外部入力の平均値を上げるとニューロンは発火しやすくなり，発火頻度が上がる．
+平均値は興奮性ニューロンは1，抑制性ニューロンは0.4に上げる．
 
-\subsection{Calcium imaging model}
-We calculate calcium concentration in a neuron from simulated spikes by following model proposed by Vogelstein~\cite{Vogelstein2009}:
+\subsection{カルシウムイメージングモデル}
+スパイクデータからカルシウムイオン濃度を計算する~\cite{Vogelstein2009}のモデルを用いる:
 \begin{equation}
   [Ca^{2+}]_{i,t} - [Ca^{2+}]_{i,t-1} = - \frac{\Delta}{\tau}([Ca^{2+}]_{t-1} - [Ca^{2+}]_b) + An_{i,t} + \sigma_c \sqrt{\Delta} \epsilon_{i,t},
   \label{eq:calcium}
 \end{equation}
-where $[Ca^{2+}]_{i,t}$ is calcium concentration of neuron $i$ at time $t$, $[Ca^{2+}]_b$ is calcium concentration baseline, $\Delta$ is time step size, $\tau$ is decay time constant, $A$ is rise in $[Ca^{2+}]$ after spike, $n_{i,t}$ is spike of 0 or 1, $\sigma_c$ is variance of noise, $\epsilon_{i,t}$ is noise which follows normal gaussian distribution.
-We do not take saturation into account because our data seems to be not having saturation.
+ただし，$[Ca^{2+}]_{i,t}$をニューロン$i$の時刻$t$でのカルシウムイオン濃度，$[Ca^{2+}]_b$をカルシウムイオン濃度のベースライン，$\Delta$を時間幅，$\tau$は時定数，$A$は1つのスパイクでのカルシウムイオン濃度の上がり幅，$n_{i,t} \in \{0,1\}$はニューロン$i$の時刻$t$でのスパイク，$\sigma_c$はノイズの分散，$\epsilon_{i,t} \sim \mathcal{N}(0,1)$である．
+この人工データではsaturationは考えないこととする．
 
-Then, we convert the calcium concentration $[Ca^{2+}]_{i,t}$ to imaging intensity $F_{i,t}$ by equation from Vogelstein~\cite{Vogelstein2009}:
+次に，同論文のモデルを使ってカルシウムイオン濃度$[Ca^{2+}]_{i,t}$をカルシウムイメージングで計測される蛍光強度$F_{i,t}$に変換する：
 \begin{equation}
   F_{i,t} = \alpha[Ca^{2+}]_t + \beta + \sigma_F \epsilon_{i,t},
   \label{eq:intensity}
 \end{equation}
-where $\alpha$ is the scale of imaging intensity, $\beta$ is offset, $sigma_F$ is variance of noise and $\epsilon_{i,t}$ is noise which follows normal gaussian distribution.
+$\alpha$は強度，$\beta$はバイアス，$sigma_F$はノイズの分散である．
 
-Finally, we take sum of intensity every 125ms since our data is sampled at 8Hz:
-\begin{equation}
-  x_{i,t'} = \sum_{t=1}^{125} F_{i,t}.
-  \label{eq:observation}
-\end{equation}
+\Tabref{tab:parameter2}に使用したパラメータを示す．
 
-Parameters we used is shown in \Tabref{tab:parameter2}.
 \begin{table}[htb]
   \center
   \begin{tabular}{|cccccccc|} \hline
     $[Ca^{2+}]_b$ & $\Delta$ & $\tau$ & $A$ & $\sigma_c$ & $\alpha$ & $\beta$ & $\sigma_F$ \\ \hline
     0.1 & 0.001 & 0.5 & 5.0 & 1.0 & 1.0 & 0 & 1.0 \\ \hline
   \end{tabular}
-  \caption{Parameters used in Vogelstein model}
+  \caption{カルシウムイメージングモデルでのパラメータ}
   \label{tab:parameter2}
 \end{table}
 
+\subsection{観測モデル}
+実データは8 Hzでサンプリングされたデータなので，シミュレーションした蛍光強度を8 Hzで足し合わせる：
+\begin{equation}
+  x_{i,t'} = \sum_{t=1}^{125} F_{i,t}.
+  \label{eq:observation}
+\end{equation}
+
 \section{結果}
+\subsection{設定}
 人工データは4種類作成した．
 \begin{enumerate}
   \item ニューロンは1つのグループに必ず所属し，近いニューロン同士がグループとなっている
   \item ニューロンは1つのグループに必ず所属し，グループは近さに関係なくランダムに形成される
   \item ニューロンは1つか2つのグループに必ず所属し，同じニューロンが所属しているグループ同士の活動は被らない
 \end{enumerate}
+800個の興奮性ニューロンと200個の抑制性ニューロンについてシミュレーションを行った．
+1つのグループに所属するニューロン数は50〜200個とした．
+グループが活動する時間は5sごとに変えた．
+シミュレーション時間は470sで，そのうちの10sは安定のため解析から除外した．
 
 \subsection{手法の比較}
 Euclidean NMF，logistic regression，glassoの性能の比較を行った．

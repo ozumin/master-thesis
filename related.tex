@@ -1,19 +1,22 @@
-\chapter{関連研究}
-\section{脳のデータをどう解析するか}
-fMRIなどの時間解像度が低いデータについて．
-スパイクなどの時間解像度が高いデータについて．
+\section{関連研究}
+\subsection{脳データの解析}
+カルシウムイメージングは時間解像度が低く空間解像度が高いデータが取得できる手法である．
+同じ特徴であるfMRIに対するデータの解析手法を紹介する．
 
-\section{カルシウムイメージングの解析例について}
+fMRIデータの解析はmodel basedな手法とdata-drivenな手法がある\cite{Li2009}．
+Model basedな手法の例はstatistical parametric mapping (SPM)やcross-correlation analysis (CCA)，coherence analysis (CA)などが上げられる．
+Data-drivenな手法は更にdecompositionとclusteringに分けることができる．
+Decompositionにはprincinpal component analysis (PCA)やsingular value decomposition (SVD)，independent component analysis (ICA)などが挙げられる．
+Clusteringはfuzzy clustering analysis (FCA)やhierarchical clustering analysis (HCA)などがある．
+
+\subsection{カルシウムイメージングの解析例について}
 Molterらはカルシウムイメージングデータからニューロングループを抽出する方法を8つ人工データ実験と共に試した\cite{Molter2018}．
 手法は大きく2つに分けられ，ニューロンペアの相関を見るものと，全てのニューロン活動の状態を見るものである．
 前者ではPCAによって相互相関行列を作成した後，ICAやPromax rotationによってグルーピングを行う．後者では，ニューロンの活動からSVD，k-meansラスタリング，spectralクラスタリングなどを用いてグルーピングを行う．後者の方法では，各グループの時間方向の活動を平均をとるなどして，グループの活動としていた．
 人工データは，ニューロンをポアソン分布にしたがって発火させ，発火からカルシウムイメージングの観測データに変換していた．
 同じグループに所属するニューロンは発火確率を同じ時間帯にあげることで表現したいた．
 
-後富山大のやつ
-
-\section{NMFのブートストラップ}
-NMFでブートストラップしてる例\cite{Ubaru2017}．
-
-\section{bayesian model averagingについて}
-ここに入れるかは迷い中
+Ghandorらは学習に関係するニューロン群についてNMFを用いて解析を行った\cite{Ghandour2019}．
+実験は複数セッションに分けて行われており，それぞれのセッションでNMFを用いてニューロングループとその活動に分解していた．
+基底数はAICで決めていた．
+セッションごとに推定されたグループが近いかをcosine similarityではかった結果，engram cellではnon-engram cellよりも繰り返し活動するグループが多かった．

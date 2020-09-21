@@ -1,6 +1,18 @@
 \section{NMFでのアプローチ}
+\subsection{NMF}
+Nonnegative matrix factorization（NMF）は行列分解の手法の一つである．
+NMFは以下の目的関数を最小化する：
+\begin{equation}
+	\argmin_{D \geq 0, C \geq 0} ||X - DC||_F^2.
+  \label{eq:NMF}
+\end{equation}
+本章では，NMFで解析をするに当たってカルシウムイメージングに合った推定方法をいくつか試したのでそれを紹介する．
+
 \subsection{データに対するアプローチ}
+以下では，NMFに対して行ったアプローチを紹介する．
+全てが成功したわけではないが載せることにする．
 \subsubsection{バイアス除去}
+ニューロンの
 やってみたが割とバイアスに持っていかれる．
 そもそも数理モデルが違いそう．
 
