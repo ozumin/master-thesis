@@ -12,11 +12,76 @@ NMFは以下の目的関数を最小化する：
 以下では，NMFに対して行ったアプローチを紹介する．
 全てが成功したわけではないが載せることにする．
 \subsubsection{バイアス除去}
-ニューロンの
-やってみたが割とバイアスに持っていかれる．
-そもそも数理モデルが違いそう．
+ニューロンごとに発現している蛍光タンパク質の量や細胞の大きさが異なる．
+そのため，ニューロンごとのバイアスが観測データに載っていると考え，バイアスを除去する方法を試した．
+この時の数理モデルは以下のようになる：
+\begin{equation}
+	X = Y + H + B,
+\end{equation}
+ただし，$B \in \mathbb{R}_+^{I\times J}$は行ごとに同じ数値が入ったバイアス行列である．
+
+バイアスの推定方法は，$D$に1列を足し，$C$に$\mathbf 1$の1行を足してNMFを更新する．
+$D$の列にバイアスが推定されることを期待した．
+
+簡単な人工データ実験を行った結果，足したバイアスよりも大きいバイアスが推定されてしまうことがわかった．
+また，そもそもの数理モデルが異なると考え直した．
+
 
 \subsubsection{重複除去}
+置いた仮定では，あるニューロンが複数のグループに所属する時，グループの活動は被らないとしている．
+しかし，NMFの推定時にそのような制約は入れていないので，NMFで推定した結果この仮定が破られているようであれば制約は入れなければならない．
+
+以下の目的関数を考えた：
+\begin{eqnarray}
+	\argmin_{D \geq 0, C \geq 0} ||X - DC||_F^2 - \lambda \sum_{k=1}^K \sum_{l \neq k}^K \left( || D_{:l} - D_{:k} ||_1 || C_{l:} - C_{k:} ||_1 \right).
+  \label{eq:overlap}
+\end{eqnarray}
+
+更新則を導出する．
+\Eqref{eq:overlap}のLagrange関数$L$は，
+\begin{eqnarray}
+	L = \text{Tr}(X^TX) - 2 \text{Tr}(X^TDC) + \text{Tr}(C^TD^TDC) - \text{Tr}(\Phi_C C^T) - \text{Tr}(\Phi_D D^T) - \lambda \text{Tr} (F^T C H^T S^T D F),
+\end{eqnarray}
+であり，KKT条件は，
+\begin{eqnarray}
+	\frac{\partial L}{\partial C} = \frac{\partial L}{\partial D} = 0 \\
+	D \geq 0 \\
+	C \geq 0 \\
+	\Phi_C \geq 0 \\
+	\Phi_D \geq 0 \\
+	\Phi_C C = \Phi_D D = 0,
+\end{eqnarray}
+である．
+ただし，$F \in [0,1]^{J \times J}$は2つの時間の組み合わせを表現した以下のような行列である：
+\begin{equation}
+	F = \left(
+    \begin{array}{cccccc}
+			1 & 1 & \ldots & 0 & \ldots & 0 \\
+			-1 & 0 & \ldots & 1 & \ldots & 0 \\
+			0 & -1 & \ldots & -1 & \ldots & 0 \\
+			\vdots & \vdots & \vdots & \vdots & \ddots & \vdots \\
+			0 & 0 & \ldots & 0 & \ldots & 1 \\
+			0 & 0 & \ldots & 0 & \ldots & -1
+    \end{array}
+  \right).
+\end{equation}
+また，$S = sign(DF)$である．
+
+$D$を求めるには以下の色を解く：
+\begin{equation}
+	\frac{\partial L}{\partial D} = - 2 X C^T + 2 DCC^T - \Phi_D - \lambda SHC^T FF^T = 0.
+\end{equation}
+これを求めると$D$の要素の更新は以下である：
+\begin{equation}
+	D_{ik} \leftarrow D_{ik} \frac{2[XC^T]_{ik} + \lambda [SHC^T FF^T]_{ik}^+}{2[DCC^T]_{ik} - \lambda [SHC^T FF^T]_{ik}^-},
+\end{equation}
+ただし，$[\cdot]_{ik}$は行列の$(i,k)$要素を表し，$[\cdot]^+$は行列の中の正の要素，$[]^-$は負の要素である．
+
+同様に，$C$の要素の更新は以下の通りである：
+\begin{equation}
+	C_{kj} \leftarrow C_{kj} \frac{2[D^T X]_{kj} + \lambda [FF^T D^T SH]_{kj}^+}{2[D^T DC]_{kj} - \lambda [FF^T D^T SH]_{kj}^-}.
+\end{equation}
+
 やってみたがうまくいかんかった．
 
 \subsubsection{時間方向への制約}
@@ -24,9 +89,16 @@ NMFは以下の目的関数を最小化する：
 そのため，NMFで分解を行う際も，行列$C$の時間方向に前時刻の値と近くなるような制約を入れることでより正確なニューロングループの抽出が行えると考えられる．
 そこで，以下のような制約を加えた目的関数が考えられる：
 \begin{equation}
-	\argmin_{D \geq 0, C \geq 0}||{\mb X - DC}||^2_F + \lambda \sum_t||{\mb C}[:,t] - {\mb C}[:,t-1]||_1.
+	\argmin_{D \geq 0, C \geq 0}||X - DC||^2_F + \lambda \sum_t||C_{:t} - C_{:t-1}||_1.
   \label{eq:NMF-ar}
 \end{equation}
+
+更新則は，$D$はユークリッド型NMFと同じだが$C$は異なる．
+更新則は以下である：
+\begin{equation}
+	C_{kj} \leftarrow C_{kj} \frac{2[D^T X]_{kj} - S_{kj}}{2[D^T DC]_{kj}},
+\end{equation}
+ただし，$S_{:j} = sign(C_{:j} - C_{:j-1})$であり，1列目のみ$S_{:1} = \mathbf{0}$である．
 
 \subsection{ブートストラップ}
 これで基底決めるのから逃れられる．．

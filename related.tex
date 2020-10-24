@@ -9,14 +9,26 @@ Data-drivenな手法は更にdecompositionとclusteringに分けることがで�
 Decompositionにはprincinpal component analysis (PCA)やsingular value decomposition (SVD)，independent component analysis (ICA)などが挙げられる．
 Clusteringはfuzzy clustering analysis (FCA)やhierarchical clustering analysis (HCA)などがある．
 
-\subsection{カルシウムイメージングの解析例について}
+\subsection{カルシウムイメージングの解析例}
+カルシウムイメージングデータの解析には二種類考えられる．
+まずは，カルシウムイメージングデータからスパイクを推定し，そのスパイク列を解析する方法である．
+Vogelsteinらは逐次モンテカルロ法を用いてカルシウムイメージングデータからスパイク推定を行なった\cite{Vogelstein2009}．
+しかし，カルシウムイメージングデータでも低いサンプリングレートで計測されたデータではこの方法は使えない．
+
+もう一つは，データから直接ニューロンの活動を解析する方法である．
+Mishchenckoはベイズ推定を用いたニューロンの結合推定を行なった\cite{Mishchencko2011}．
+しかし，カルシウムイメージングのサンプリングレートが30Hz以上でないと意味のある結合推定結果は得られないと報告している．
+また，StetterらはTransfer Entropyを用いて興奮性ニューロンの結合推定を行なった\cite{Stetter2012}．
+この手法では，モデルを仮定せずにデータからネットワーク推定を行なっている．
+Ikegayaらは蛍光強度データの一次微分から発火のタイミングの情報を取り出し，テンプレートマッチングによってリアクチベーション現象を解析した\cite{Ikegaya2004}．
+
 Molterらはカルシウムイメージングデータからニューロングループを抽出する方法を8つ人工データ実験と共に試した\cite{Molter2018}．
 手法は大きく2つに分けられ，ニューロンペアの相関を見るものと，全てのニューロン活動の状態を見るものである．
 前者ではPCAによって相互相関行列を作成した後，ICAやPromax rotationによってグルーピングを行う．後者では，ニューロンの活動からSVD，k-meansラスタリング，spectralクラスタリングなどを用いてグルーピングを行う．後者の方法では，各グループの時間方向の活動を平均をとるなどして，グループの活動としていた．
 人工データは，ニューロンをポアソン分布にしたがって発火させ，発火からカルシウムイメージングの観測データに変換していた．
-同じグループに所属するニューロンは発火確率を同じ時間帯にあげることで表現したいた．
+同じグループに所属するニューロンは発火確率を同じ時間帯にあげることで表現していた．
 
-Ghandorらは学習に関係するニューロン群についてNMFを用いて解析を行った\cite{Ghandour2019}．
+Ghandorらは学習に関係するニューロン（engram cell）群についてNMFを用いて解析を行った\cite{Ghandour2019}．
 実験は複数セッションに分けて行われており，それぞれのセッションでNMFを用いてニューロングループとその活動に分解していた．
 基底数はAICで決めていた．
-セッションごとに推定されたグループが近いかをcosine similarityではかった結果，engram cellではnon-engram cellよりも繰り返し活動するグループが多かった．
+セッションごとに推定されたグループが近いかをcosine similarityで計った結果，engram cellではnon-engram cellよりも繰り返し活動するグループが多かった．
