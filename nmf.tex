@@ -34,7 +34,7 @@ $D$の列にバイアスが推定されることを期待した．
 
 更新則を導出する．
 参考にしたのは\cite{Babaee2016}である．
-\Eqref{eq:overlap}のLagrange関数$L$は，
+\eqref{eq:overlap}のLagrange関数$L$は，
 \begin{eqnarray}
 	L = \text{Tr}(X^TX) - 2 \text{Tr}(X^TDC) + \text{Tr}(C^TD^TDC) - \text{Tr}(\Phi_C C^T) - \text{Tr}(\Phi_D D^T) - \lambda \text{Tr} (F^T C H^T S^T D F),
 \end{eqnarray}
@@ -78,11 +78,11 @@ $D$を求めるには以下の式を解く：
 	c_{kj} \leftarrow c_{kj} \frac{2[D^T X]_{kj} + \lambda [FF^T D^T SH]_{kj}^+}{2[D^T DC]_{kj} - \lambda [FF^T D^T SH]_{kj}^-}.
 \end{equation}
 
-やってみたがうまくいかんかった．
-
 \subsection{時間方向への制約}
 カルシウムイメージングデータはスパイク情報を反映するのが遅く，一度上がった蛍光強度は緩やかに下がっていく．
 そのため，NMFで分解を行う際も，行列$C$の時間方向に前時刻の値と近くなるような制約を入れることでより正確なニューロングループの抽出が行えると考えられる．
+$C$の偶数列を前後の列の平均とするNMFも提案されている~\cite{Cheung2015}．
+しかし，これはかなりスムースになる制約だと考えられる．
 そこで，以下のような制約を加えた目的関数が考えられる：
 \begin{equation}
 	\argmin_{D \geq 0, C \geq 0}||X - DC||^2_F + \lambda \sum_t||c_{:t} - c_{:t-1}||_1.

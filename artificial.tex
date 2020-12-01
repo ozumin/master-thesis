@@ -68,10 +68,11 @@ Small world networkはノード数，張り替え確率，初期次数を決め�
 ある時間帯にあるニューロングループが活動する時，そのニューロングループには平均値を上げた外部入力を足し，それ以外のニューロンには平均$0$の外部入力を足す．
 こうすることで，ニューロングループの活動のみ上がる（つまり蛍光強度が上がる）．
 実際の脳でもこのように外部からの入力によってニューロンの活動を制御していると考えられる．
-あるニューロングループを活動させるには，そのグループのハブとなるニューロンにのみ強い外部入力を与える方法も考えられる．
-しかし，ネットワーク構造をかなり工夫しないと実現できないと考えられるため本論文では上記の方法を採用した．
+あるニューロングループを活動させるには，そのグループのハブとなるニューロンにのみ強い外部入力を与える方法も考えられるが今回は採用しない．
+なぜなら，ネットワーク構造をかなり工夫しないと実現できないためである．
 
 \subsection{カルシウムイメージングモデル}
+\textcolor{red}{TODO: 人工データの図を載せる}
 スパイクデータからカルシウムイオン濃度を計算する~\cite{Vogelstein2009}のモデルを用いる:
 \begin{equation}
   [Ca^{2+}]_{i,t} - [Ca^{2+}]_{i,t-1} = - \frac{\Delta}{\tau}([Ca^{2+}]_{i,t-1} - [Ca^{2+}]_b) + An_{i,t} + \sigma_c \sqrt{\Delta} \epsilon_{i,t},
@@ -121,55 +122,62 @@ $\alpha$は強度，$\beta$はバイアス，$\sigma_F$はノイズの分散で�
 シミュレーション時間は470sで，そのうちの10sは安定のため解析から除外した．
 
 \subsection{手法の比較}
-Euclidean NMF，logistic regression，glassoの性能の比較を行った．
-\textcolor{red}{ここにICAとPCAの結果も加える}
+NMF，PCA，ICA，logistic regression，glassoの性能の比較を行った．
 Logistic regressionとglassoについては筆者の卒論を参照されたい．
-PCAとICAはNMFと同じく一般化線形成分分析の手法\cite{Cichocki2009}として比較する．
+どちらも時間窓をスライドさせてネットワークを行う．
+今回の実験では時間窓を40，スライド幅を20とした．
+Glassoのハイパーパラメータを$\rho = 0.3$とした．
+一回でもエッジが張られたニューロン同士は同じグループとして推定量$A$と同じ行列を作成した．
 
-2のタイプについて100種類のデータを生成し，ニューロン同士が同じグループにあるか否かの行列のF1 scoreを比較した．
+PCAとICAはNMFと同じく一般化線形成分分析の手法\cite{Cichocki2009}である．
+PCAとICAでは$D$に相当する行列でNMFと同じく推定量$A$を作成する．
+
+2のタイプについて100種類のデータを生成し，$A$のF1 scoreを比較した．
 \begin{figure}[htbp]
     \begin{center}
-        \includegraphics[width=0.5\linewidth]{compare3}
-        \caption{NMF，logistic regression，glassoのF1 scoreの密度分布}
-        \label{fig:compare3}
+        \includegraphics[width=0.5\linewidth]{compare-models}
+        \caption{NMF，PCA，ICA，logistic regression，glassoのF1 scoreの密度分布}
+        \label{fig:compare-models}
     \end{center}
 \end{figure}
-\Figref{fig:compare3}より，glassoとlogistic regressionの精度は低いことがわかる．
-3つの手法のうちNMFがカルシウムイメージングデータを扱うのに適していると考えられる．
+\Figref{fig:compare-models}より，NMFの精度が最も高いことが分かる．
+NMFの非負制約がデータに合っているためだと思われる．
+Glassoとlogistic regressionについてはニューロングループを推定するという実験設定はやや不利で合った．
+各窓ごとのニューロンネットワークの活動を反映している可能性があるので悪い手法とはいえない．
 
 \subsection{推定へのネットワーク構造の影響}
 グループ推定へのネットワーク構造の影響を調べるために，1と2のネットワーク構造とグループについて100種類のデータを生成し，NMFの推定精度の比較を行った．
 人工データは，近いニューロンほどつながりやすい性質をもつので，1の人工データの方がニューロン同士が同期して活動しやすいと思われる．
 ここで，2つのニューロンが同期するとは，一方のニューロンが発火してからごく短い間にもう一方のニューロンが発火する状態が続くことである．
-実験結果を\Figref{fig:same-exc}~\ref{fig:diff-inh}に示す．\textcolor{red}{もっと綺麗な見せ方にする．検定とかした方がいいのか...？}
-\begin{figure}[htbp]
-    \begin{center}
-        \includegraphics[width=\linewidth]{same-exc}
-        \caption{データ1と2について，ニューロンごとの間違えた回数と同じグループからの興奮性入力の和の関係}
-        \label{fig:same-exc}
-    \end{center}
-\end{figure}
-\begin{figure}[htbp]
-    \begin{center}
-      \includegraphics[width=\linewidth]{same-inh}
-        \caption{データ1と2について，ニューロンごとの間違えた回数と同じグループからの抑制性入力の和の関係}
-        \label{fig:same-inh}
-    \end{center}
-\end{figure}
-\begin{figure}[htbp]
-    \begin{center}
-        \includegraphics[width=\linewidth]{diff-exc}
-        \caption{データ1と2について，ニューロンごとの間違えた回数と異なるグループからの興奮性入力の和の関係}
-        \label{fig:diff-exc}
-    \end{center}
-\end{figure}
-\begin{figure}[htbp]
-    \begin{center}
-        \includegraphics[width=\linewidth]{diff-inh}
-        \caption{データ1と2について，ニューロンごとの間違えた回数と異なるグループからの興奮性入力の和の関係}
-        \label{fig:diff-inh}
-    \end{center}
-\end{figure}
+% 実験結果を\Figref{fig:same-exc}~\ref{fig:diff-inh}に示す．
+% \begin{figure}[htbp]
+%     \begin{center}
+%         \includegraphics[width=\linewidth]{same-exc}
+%         \caption{データ1と2について，ニューロンごとの間違えた回数と同じグループからの興奮性入力の和の関係}
+%         \label{fig:same-exc}
+%     \end{center}
+% \end{figure}
+% \begin{figure}[htbp]
+%     \begin{center}
+%       \includegraphics[width=\linewidth]{same-inh}
+%         \caption{データ1と2について，ニューロンごとの間違えた回数と同じグループからの抑制性入力の和の関係}
+%         \label{fig:same-inh}
+%     \end{center}
+% \end{figure}
+% \begin{figure}[htbp]
+%     \begin{center}
+%         \includegraphics[width=\linewidth]{diff-exc}
+%         \caption{データ1と2について，ニューロンごとの間違えた回数と異なるグループからの興奮性入力の和の関係}
+%         \label{fig:diff-exc}
+%     \end{center}
+% \end{figure}
+% \begin{figure}[htbp]
+%     \begin{center}
+%         \includegraphics[width=\linewidth]{diff-inh}
+%         \caption{データ1と2について，ニューロンごとの間違えた回数と異なるグループからの興奮性入力の和の関係}
+%         \label{fig:diff-inh}
+%     \end{center}
+% \end{figure}
 \Figref{fig:same-inh}，\Figref{fig:diff-inh}より，抑制性の入力は間違える回数には影響しないと思われる．
 \Figref{fig:same-exc}より，同じグループからの興奮性入力が小さいと間違えやすいと言える．
 \Figref{fig:diff-exc}より，データ2で間違える回数が多かったニューロンは異なるグループからの興奮性入力が大きかった．
