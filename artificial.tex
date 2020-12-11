@@ -5,13 +5,9 @@
 \subsection{ネットワーク構造}
 ニューロンのネットワーク構造にはsmall world network\cite{Watts1998}を用いる．
 Small world networkはノード数，張り替え確率，初期次数を決めることによってネットワークを作成するアルゴリズムである．
-初期次数は，ニューロンが平均何個のニューロンとコネクションを持つかという変数である．
+初期次数は，ニューロンが平均何個のニューロンとシナプス結合を持つかという変数である．
 張り替え確率は，初期次数によって作成された規則的なグラフのエッジをランダムに張り替える確率である．
 そのため，エッジのうち何割が遠くのニューロンとつながっているかを表す変数である．
-
-ニューロンが他のニューロンとコネクションを持つ状態のことをコネクティビティという．
-脳のコネクティビティには，synaptic connectivityとanatomical connectivityとfunctional connectivityの3種類がある．
-ネットワーク構造を作成する際に考えているコネクティビティはsynaptic connectivityであり，ニューロンがシナプスを形成してつながっている状態のことである．
 
 実際のニューロンをsmall world networkによって表すために，初期次数と張り替え確率を実データから決める．
 今回はこの値はニューロンのコネクションの割合と相互のコネクションの割合から決める．
@@ -72,7 +68,6 @@ Small world networkはノード数，張り替え確率，初期次数を決め�
 なぜなら，ネットワーク構造をかなり工夫しないと実現できないためである．
 
 \subsection{カルシウムイメージングモデル}
-\textcolor{red}{TODO: 人工データの図を載せる}
 スパイクデータからカルシウムイオン濃度を計算する~\cite{Vogelstein2009}のモデルを用いる:
 \begin{equation}
   [Ca^{2+}]_{i,t} - [Ca^{2+}]_{i,t-1} = - \frac{\Delta}{\tau}([Ca^{2+}]_{i,t-1} - [Ca^{2+}]_b) + An_{i,t} + \sigma_c \sqrt{\Delta} \epsilon_{i,t},
@@ -108,7 +103,25 @@ $\alpha$は強度，$\beta$はバイアス，$\sigma_F$はノイズの分散で�
 \end{equation}
 ここで，$t'$はサンプリング後の時刻を表す．
 
-\section{結果}
+上記の方法で作成した人工データ時系列と観測時系列をそれぞれ\Figref{fig:art}と\Figref{fig:dat}に示す．
+\begin{figure}[htbp]
+    \begin{minipage}{0.5\hsize}
+			\begin{center}
+					\includegraphics[width=\hsize]{artificial_data}
+					\caption{1つのニューロンの人工時系列．}
+					\label{fig:art}
+			\end{center}
+		\end{minipage}
+    \begin{minipage}{0.5\hsize}
+			\begin{center}
+					\includegraphics[width=\hsize]{real_data}
+					\caption{1つのニューロンの観測時系列．}
+					\label{fig:dat}
+			\end{center}
+		\end{minipage}
+\end{figure}
+
+\section{$A$の推定に関する結果}
 \subsection{設定}
 人工データは4種類作成した．
 \begin{enumerate}
@@ -121,6 +134,38 @@ $\alpha$は強度，$\beta$はバイアス，$\sigma_F$はノイズの分散で�
 グループが活動する時間は5sごとに変えた．
 シミュレーション時間は470sで，そのうちの10sは安定のため解析から除外した．
 
+\subsection{$A$の一意性}
+前章で述べた通り，NMFには一意性がないため$A$にも一意性がない．
+1つの人工データについて初期値を変化させてNMFを行うと推定される$A$は同じではない．
+$A$の上三角の要素について$1$と推定された頻度を調べる．
+収束性と前章で述べたように寄与率が$D$の空間で取りうる値の範囲を狭めるため，$C$の行和を1とする制約を入れている．
+$X$に正規化を加えなかった結果を\Figref{fig:without_scale_A}に，$X$に行和$1$の正規化を加えた結果を\Figref{fig:with_scale_A}に示す．
+$X$に行和$1$の正規化を加えると，$D$の自由度は下がる．
+
+\begin{figure}[htbp]
+    \begin{minipage}{0.5\hsize}
+			\begin{center}
+					\includegraphics[width=\hsize]{without_scale_A}
+					\caption{$X$を正規化せずに初期値を1000回変化させてNMFから$A$を推定し，各要素について$1$と推定された頻度をプロットした．}
+					\label{fig:without_scale_A}
+			\end{center}
+		\end{minipage}
+    \begin{minipage}{0.5\hsize}
+			\begin{center}
+					\includegraphics[width=\hsize]{with_scale_A}
+					\caption{$X$を行和$1$で正規化して初期値を1000回変化させてNMFから$A$を推定し，各要素について$1$と推定された頻度をプロットした．}
+					\label{fig:with_scale_A}
+			\end{center}
+		\end{minipage}
+\end{figure}
+
+$A$に一意性がある場合は，ある$A$の要素が$1$と推定される回数は$0$か$1000$になる．
+結果より，そうなっていないので$A$に一意性がないのがわかる．
+また，\Figref{fig:with_scale_A}より$X$を正規化した方がよりばらつきが大きくなっているのがわかる．
+これは，正規化をしない方が$X$の中の大きな値に推定が引っ張られ，同じ局所解に落ちやすくなっているからだと考えられる．
+また，この正規化の仕方は物理的には，ある期間にニューロンの活動の総和が一定であるという意味をもつ．
+実際はそうではないので，今回の正規化の仕方はこの実験のみに留めておく．
+
 \subsection{手法の比較}
 NMF，PCA，ICA，logistic regression，glassoの性能の比較を行った．
 Logistic regressionとglassoについては筆者の卒論を参照されたい．
@@ -132,7 +177,7 @@ Glassoのハイパーパラメータを$\rho = 0.3$とした．
 PCAとICAはNMFと同じく一般化線形成分分析の手法\cite{Cichocki2009}である．
 PCAとICAでは$D$に相当する行列でNMFと同じく推定量$A$を作成する．
 
-2のタイプについて100種類のデータを生成し，$A$のF1 scoreを比較した．
+2のタイプについて100種類のデータを生成し，$A$を閾値$0.5$で切って${0,1}^{I \times I}$の行列にした時のF1 scoreを比較した．
 \begin{figure}[htbp]
     \begin{center}
         \includegraphics[width=0.5\linewidth]{compare-models}
@@ -145,10 +190,10 @@ NMFの非負制約がデータに合っているためだと思われる．
 Glassoとlogistic regressionについてはニューロングループを推定するという実験設定はやや不利で合った．
 各窓ごとのニューロンネットワークの活動を反映している可能性があるので悪い手法とはいえない．
 
-\subsection{推定へのネットワーク構造の影響}
-グループ推定へのネットワーク構造の影響を調べるために，1と2のネットワーク構造とグループについて100種類のデータを生成し，NMFの推定精度の比較を行った．
-人工データは，近いニューロンほどつながりやすい性質をもつので，1の人工データの方がニューロン同士が同期して活動しやすいと思われる．
-ここで，2つのニューロンが同期するとは，一方のニューロンが発火してからごく短い間にもう一方のニューロンが発火する状態が続くことである．
+% \subsection{推定へのネットワーク構造の影響}
+% グループ推定へのネットワーク構造の影響を調べるために，1と2のネットワーク構造とグループについて100種類のデータを生成し，NMFの推定精度の比較を行った．
+% 人工データは，近いニューロンほどつながりやすい性質をもつので，1の人工データの方がニューロン同士が同期して活動しやすいと思われる．
+% ここで，2つのニューロンが同期するとは，一方のニューロンが発火してからごく短い間にもう一方のニューロンが発火する状態が続くことである．
 % 実験結果を\Figref{fig:same-exc}~\ref{fig:diff-inh}に示す．
 % \begin{figure}[htbp]
 %     \begin{center}
@@ -178,19 +223,19 @@ Glassoとlogistic regressionについてはニューロングループを推定�
 %         \label{fig:diff-inh}
 %     \end{center}
 % \end{figure}
-\Figref{fig:same-inh}，\Figref{fig:diff-inh}より，抑制性の入力は間違える回数には影響しないと思われる．
-\Figref{fig:same-exc}より，同じグループからの興奮性入力が小さいと間違えやすいと言える．
-\Figref{fig:diff-exc}より，データ2で間違える回数が多かったニューロンは異なるグループからの興奮性入力が大きかった．
-データ2ではデータ1よりも近いニューロンが異なるグループに所属する割合が多い．
-そのため，異なるグループからの興奮性入力と間違える回数の関係が強く出たと思われる．
-
-他にも推定へのネットワーク構造の影響の調査を試みたが，はっきりとした結果は得られなかった．
+% \Figref{fig:same-inh}，\Figref{fig:diff-inh}より，抑制性の入力は間違える回数には影響しないと思われる．
+% \Figref{fig:same-exc}より，同じグループからの興奮性入力が小さいと間違えやすいと言える．
+% \Figref{fig:diff-exc}より，データ2で間違える回数が多かったニューロンは異なるグループからの興奮性入力が大きかった．
+% データ2ではデータ1よりも近いニューロンが異なるグループに所属する割合が多い．
+% そのため，異なるグループからの興奮性入力と間違える回数の関係が強く出たと思われる．
+% 
+% 他にも推定へのネットワーク構造の影響の調査を試みたが，はっきりとした結果は得られなかった．
 
 \subsection{2グループに所属するとき}
 推定精度を出す．
 そして被り率も出す．
 
-\subsection{アンサンブルの有用性}
+\subsection{モデル平均の有用性}
 バギングの有用性を確認するために各人工データについて，1回NMFを行った結果，30回初期値を変えた結果，30回ブートストラップした結果のF1 scoreを~\Figref{fig:once-init-boot}に示す．
 なお，NMFは20回初期値を変化させて再構成ごさが最小となる結果を1回の結果として用いた．
 \begin{figure}[htbp]
@@ -256,4 +301,9 @@ Brunetらの方法では真の基底数10に近い基底数が選ばれている
     \end{minipage}
 \end{figure}
 
-\subsection{NMFのモデルエビデンス}
+\subsection{}
+
+\section{$A$のクラスタリングに関する結果}
+\subsection{クラスタ数の決定}
+スペクトラルクラスタリングでクラスタ数を決定する方法はいくつかあるが，その中でも小さい固有値を見る方法と，Gap統計量を用いた方法を試す．
+$A$と比較する類似度行列として，データの相互相関行列と分散共分散行列を用いる．

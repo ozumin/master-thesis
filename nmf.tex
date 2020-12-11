@@ -1,7 +1,7 @@
-\section{データの特徴を考慮したNMF}
-本節では，データの特徴を考慮して考案した制約を紹介する．
+\chapter{その他の検討事項}
+本節では，データの特徴を考慮して考案したNMFの制約とモデルエビデンスの計算方法を紹介する．
 
-\subsection{バイアス除去}
+\section{バイアス除去}
 ニューロンごとに発現している蛍光タンパク質の量や細胞の大きさが異なる．
 そのため，ニューロンごとのバイアスが観測データに載っていると考え，バイアスを除去する方法を試した．
 この時の数理モデルは以下のようになる：
@@ -22,31 +22,31 @@ $D$の列にバイアスが推定されることを期待した．
 \end{equation}
 ただし，$A \in \mathbb{R}_+^{I \times I}$は対角行列である．
 
-\subsection{重複除去}
+\section{重複除去}
 置いた仮定では，あるニューロンが複数のグループに所属する時，グループの活動は被らないとしている．
 しかし，NMFの推定時にそのような制約は入れていないので，NMFで推定した結果この仮定が破られているようであれば制約は入れなければならない．
 
 以下の目的関数を考えた：
-\begin{eqnarray}
+\begin{align}
 	\argmin_{D \geq 0, C \geq 0} ||X - DC||_F^2 - \lambda \sum_{k=1}^K \sum_{l \neq k}^K \left( || d_{:l} - d_{:k} ||_1 || c_{l:} - c_{k:} ||_1 \right).
   \label{eq:overlap}
-\end{eqnarray}
+\end{align}
 
 更新則を導出する．
 参考にしたのは\cite{Babaee2016}である．
 \eqref{eq:overlap}のLagrange関数$L$は，
-\begin{eqnarray}
+\begin{align}
 	L = \text{Tr}(X^TX) - 2 \text{Tr}(X^TDC) + \text{Tr}(C^TD^TDC) - \text{Tr}(\Phi_C C^T) - \text{Tr}(\Phi_D D^T) - \lambda \text{Tr} (F^T C H^T S^T D F),
-\end{eqnarray}
+\end{align}
 であり，KKT条件は，
-\begin{eqnarray}
+\begin{align}
 	\frac{\partial L}{\partial C} = \frac{\partial L}{\partial D} = 0 \\
 	D \geq 0 \\
 	C \geq 0 \\
 	\Phi_C \geq 0 \\
 	\Phi_D \geq 0 \\
 	\Phi_C C = \Phi_D D = 0
-\end{eqnarray}
+\end{align}
 である．
 ただし，$\Phi_D$と$\Phi_C$はそれぞれ$D \geq 0$，$C \geq 0$に対するLagrange乗数で，$F \in [0,1]^{K \times (K-1)!}$は2つの時間の組み合わせを表現した以下のような行列である：
 \begin{equation}
@@ -78,7 +78,7 @@ $D$を求めるには以下の式を解く：
 	c_{kj} \leftarrow c_{kj} \frac{2[D^T X]_{kj} + \lambda [FF^T D^T SH]_{kj}^+}{2[D^T DC]_{kj} - \lambda [FF^T D^T SH]_{kj}^-}.
 \end{equation}
 
-\subsection{時間方向への制約}
+\section{時間方向への制約}
 カルシウムイメージングデータはスパイク情報を反映するのが遅く，一度上がった蛍光強度は緩やかに下がっていく．
 そのため，NMFで分解を行う際も，行列$C$の時間方向に前時刻の値と近くなるような制約を入れることでより正確なニューロングループの抽出が行えると考えられる．
 $C$の偶数列を前後の列の平均とするNMFも提案されている~\cite{Cheung2015}．
@@ -96,3 +96,62 @@ $C$の偶数列を前後の列の平均とするNMFも提案されている~\cit
 	c_{kj} \leftarrow c_{kj} \frac{2[D^T X]_{kj} - s_{kj}}{2[D^T DC]_{kj}},
 \end{equation}
 ただし，$s_{:j} = sign(c_{:j} - c_{:j-1})$であり，1列目のみ$s_{:1} = \mathbf{0}$である．
+
+\section{NMFのモデルエビデンス}
+NMFの基底数を決める際にブートストラップから計算されたモデルエビデンスを用いることを考える．
+BICは最尤推定量の尤度からモデルエビデンスを近似して扱っている．
+ブートストラップによってモデルエビデンスを近似計算できると考えられる．
+本節ではその説明をする．
+
+今回の問題をBayesian model averagingの枠組みに当てはめると，
+\begin{align}
+	p(A|X) = \sum_k p(A|\mathcal{M}_k, X) p(\mathcal{M}_k | X)
+\end{align}
+で$p(A|X)$を求めることになる．
+今回は異なる基底数のNMFから求まった$A$をモデルの事後確率で重み付けて足し合わせることになる．
+
+モデルの事後確率は
+\begin{align}
+	p(\mathcal{M}_k|X) = \frac{m_k p(\mathcal{M}_k)}{\sum_l m_l p(M_l)}
+\end{align}
+で表される．
+ただし，
+\begin{align}
+	m_k = \int p(X | Y_k, \mathcal{M}_k) p(Y_k| \mathcal{M}_k) dY_k
+	\label{eq:evidence}
+\end{align}
+である．
+これはモデルエビデンスやmarginal likelihoodと呼ばれる．
+また，$p(\mathcal{M}_k)$はモデルが正しい確率である．
+
+ある条件下で，母数の事後確率の密度関数はブートストラップによる最尤推定量の分布と同じになる．
+そのため，ブートストラップサンプルから推定した$A$の分布をもとに事後確率を計算すれば良い．
+
+現在の設定では$p(\mathcal{M}_k)$は一様なため，エビデンスを見る必要がある．
+
+\subsection{ラプラス近似}
+エビデンスの計算には事前分布を決めなければならず，積分も計算しなければいけない．
+そこでラプラス近似により$m_k$は以下のような$\hat{m_k}$で近似できる．
+\begin{align}
+	\log \hat{m}_k = \log p(X | \hat{Y_k}, \mathcal{M}_k) - \frac{d_k}{2} \log n
+	\label{eq:simm}
+\end{align}
+ここで，$d_k$は母数の数（$I \times K + K \times J$），$n$は観測データ数（$J$）である．
+この近似を使ってログBayes因子を計算したのがBICである．
+
+$\log p(X | \hat{Y_k}, \mathcal{M}_k)$は初期値を変えてNMFを行い，尤度が最も大きくなった対数尤度を用いる．
+また，$\sigma^2 = Var(X - Y_k)$として計算する．
+
+\subsection{ブートストラップによる近似}
+ブートストラップの推定量の分布は最尤推定量の分布を近似する（ブートストラップサンプルが生成されたパラメータ分バイアスは乗る）ので，$m_k$は以下のように近似できる．
+
+\begin{align}
+	m_k &= \int p(X | Y_k, \mathcal{M}_k) p(Y_k| \mathcal{M}_k) dY_k \\
+	&\sim \frac{1}{B} \sum_b \prod_{i,j} \frac{1}{\sqrt{2 \pi \sigma^2}} \exp\left(-\frac{([Y_k^b]_{ij} - X^b_{ij})^2}{2 \sigma^2} \right) \\
+	\label{eq:simm2}
+\end{align}
+
+ここで，$Y_k^b$はブートストラップサンプル$b$から計算された$Y_k$で，$B$はブートストラップサンプル数である．
+また，$\sigma^2 = Var(X^b - Y^b_k)$として計算する．
+
+ラプラス近似は本来NMFには不適切なので，ブートストラップによる近似でモデルエビデンスを計算することができれば基底数を推定できるかもしれない．
