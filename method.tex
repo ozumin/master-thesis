@@ -299,5 +299,27 @@ $A$のクラスタリングにはスペクトラルクラスタリングを用�
 そこをクラスタ数とする．
 これは目で見て判断しなければならないが，今回は固有値の差分を取って大津の二値化にかけ，差分が大きいグループの最大の固有値の箇所を固有値ギャップとして計算した．
 
-クラスタが明瞭な場合に固有値ギャップを見る方法が最も安定してクラスタ数を決定できた．
-そのため，実験では固有値ギャップを見る方法を採用する．
+クラスタが明瞭な場合に固有値ギャップを見る方法が最も安定してクラスタ数を決定できたため，実験では固有値ギャップを見る方法を採用する．
+
+\subsection{評価}
+比較手法には\cite{Molter2018}で性能の良かったICA-CSを用いる．
+また，相関行列とも比較を行う．
+
+クラスタリングの評価方法には同論文で用いられていたBest Match scoreを用いる．
+二つのクラスタリング結果$\mathcal{A} = \{A_1, \dots, A_{|\mathcal{A}|}\}$と$\mathcal{A^\prime} = \{A^\prime_1, \dots, A^\prime_{|\mathcal{A}^\prime|}\}$があった場合を考える．
+$\mathcal{A}$と$\mathcal{A^\prime}$のBest Match distance~\cite{Goldberg2010}を
+\begin{align}
+	BestMatch_d = \sum_{A \in \mathcal{A}} min_{A^\prime \in \mathcal{A^\prime}} d(A, A^\prime) + \sum_{A^\prime \in \mathcal{A^\prime}} \min_{A \in \mathcal{A}} d(A^\prime, A),
+\end{align}
+とする．
+ただし，
+\begin{align}
+	d(A,A^\prime) = 1 - \frac{|A \cap A^\prime|}{|A \cup A^\prime|},
+\end{align}
+である．
+これはJaccard係数を1から引いた量である．
+Best Match scoreは
+\begin{align}
+	Best Match score = 1 - \frac{1}{|\mathcal{A}| + |\mathcal{A^\prime}|} BestMatch_d(\mathcal{A}, \mathcal{A^\prime}),
+\end{align}
+である．
