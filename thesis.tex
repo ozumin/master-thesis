@@ -6,7 +6,7 @@
   footsepline, % フッタ線あり
 ]{scrbook}
 \usepackage{luatexja-preset} % 日本語化
-%\usepackage[hiragino-pron]{luatexja-preset} % 日本語化(macOS用)
+% \usepackage[hiragino-pron]{luatexja-preset} % 日本語化(macOS用)
 \usepackage[main=japanese,english]{babel} % 用語の日本語化
 \makeatletter % 章の表記を変えたい場合はここから
 \renewcommand{\chapterlinesformat}[3]{%
@@ -47,6 +47,7 @@
 \usepackage[fleqn,tbtags]{mathtools} % amsmathの拡張
 \mathtoolsset{showonlyrefs,showmanualtags} % ラベルありの数式のみ番号あり
 %%% packageの例の終わり
+\usepackage{indentfirst}
 
 %%% newcommand
 \let\originaleqref=\eqref
@@ -58,14 +59,14 @@
 \newcommand{\maximize}{\mathop{\rm maximize}\limits}
 \newcommand{\mb}{\mathbf}
 \newcommand{\mr}{\mathrm}
-\DeclareMathOperator*{\argmin}{arg\,min}
-\DeclareMathOperator*{\argmax}{arg\,max}
+\newcommand{\argmax}{\mathop{\textrm{arg~max}}\limits}
+\newcommand{\argmin}{\mathop{\textrm{arg~min}}\limits}
 %%%
 
 %%% タイトル
 \subject{2020年度修士論文}
-\title{カルシウムイメージングデータのクラスタリング方法の一検討}
-\subtitle{タイトルは適当} 
+\title{NMFとバギングを用いたカルシウムイメージングデータのクラスタリング方法の一検討}
+% \subtitle{ブートストラップ法とNMFを用いたニューロンの結合確率推定} 
 \author{5319E056-6　永山 瑞生}
 \date{\today}
 \publishers{
