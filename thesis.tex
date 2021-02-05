@@ -48,13 +48,18 @@
 \mathtoolsset{showonlyrefs,showmanualtags} % ラベルありの数式のみ番号あり
 %%% packageの例の終わり
 \usepackage{indentfirst}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 
 %%% newcommand
 \let\originaleqref=\eqref
 \renewcommand{\eqref}{式\originaleqref}
-\newcommand{\Alref}[1]{アルゴリズム\ref{#1}}
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+\renewcommand{\algorithmicensure}{\textbf{Output:}}
+\newcommand{\Alref}[1]{Algorithm~\ref{#1}}
 \newcommand{\Figref}[1]{図\ref{#1}}
 \newcommand{\Tabref}[1]{表\ref{#1}}
+\newcommand{\Secref}[1]{\ref{#1}節}
 \newcommand{\minimize}{\mathop{\rm minimize}\limits}
 \newcommand{\maximize}{\mathop{\rm maximize}\limits}
 \newcommand{\mb}{\mathbf}
@@ -72,7 +77,8 @@
 \publishers{
   早稲田大学 先進理工学研究科\\
   電気・情報生命専攻\\
-  情報学習システム研究室
+  情報学習システム研究室\\
+	指導教員 村田昇\\
 }
 
 %%% 本文
@@ -93,6 +99,7 @@
 \input{method}
 \input{artificial}
 \input{real}
+\input{appendixa}
 \input{discussion}
 \input{thanks}
 \backmatter
@@ -100,7 +107,8 @@
   % babel-japaneseが若干悪さをするので英語にして回避
   \printbibliography[title=参考文献]
 \end{otherlanguage}
-\input{appendixa}
 \input{appendixb}
 \input{appendixc}
+\clearpage
+\includepdf[pages=-]{seiyaku1.pdf}
 \end{document}
